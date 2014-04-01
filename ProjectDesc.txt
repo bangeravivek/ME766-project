@@ -1,2 +1,3 @@
 This project aims at testing out various SIMD friendly sparse Matrix Vector Multiplication methods.
-Methods to implement are: CRS, ELLPACK, SELL-C-Sigma
+Methods to implement are: CRS, ELLPACK, SELL-C-Sigma.
+This is a collaborator commit
