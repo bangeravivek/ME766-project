@@ -1,0 +1,1 @@
+This project aims at testing out various SIMD friendly sparse Matrix Vector Multiplication methods.
