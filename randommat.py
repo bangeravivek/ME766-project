@@ -8,7 +8,7 @@ f=open('matrix.txt','wt')
 for i in range(0,1000):
 	for j in range(0,1000):
 		Y=randint(1,100)
-		if Y>85:
+		if Y>95:
 			Z=str(randint(1,100))
 			f.write(Z+' ')
 			#f.write(' ')
