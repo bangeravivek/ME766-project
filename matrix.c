@@ -62,18 +62,29 @@ for (i=0;i<arraySizeX;i++)
    return theArray;
 }
 
+void freese(int sizeX, int sizeY, double** ptr)
+{
+    int i;
+     for (i=0;i<sizeX;i++)
+        free(ptr[i]);
+    free(ptr);
+}
+
+
 
 void main()
 {
 
 	const int N=6;
 	const int Dsize=50;
-	FILE *arr;
+	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
 	int* val=Make1DIntArray(Dsize);
 	int* col=Make1DIntArray(Dsize);
 	int* row=Make1DIntArray(Dsize);
+	int* result=Make1DIntArray(N);
+	int* vecX=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
 	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
@@ -109,7 +120,19 @@ void main()
 	         end.tv_usec - start.tv_usec) / 1.e6;
 
 	printf("\nTime spent=%f\n", delta);	
+
+	vec=fopen("vec.txt","r");
+	for (i=0;i<N;i++)
+	{
+		fscanf(vec,"%d",&vecX[i]);
+	}
+	printf("\n Vector is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",vecX[i]);
+	}
 //printing val, col and row
+	/*
 	printf("Val=");
 	for(i=0;i<Dsize;i++)
 	{
@@ -128,11 +151,26 @@ void main()
         {
                 printf("%d\t",row[i]);
         }
+        */
         printf("\n");
 
 
-
-
+        /*Now the actual multiplication kernel*/
+        for (i=0;i<N;i++)
+        {
+        	for (j=row[i];j<row[i+1];j++)
+        	{
+        		result[i]+=val[j]*vecX[col[j]];
+        	}
+       	}
+	printf("\n Result is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",result[i]);
+	}      
+	
+        
+        
 
 }
 
