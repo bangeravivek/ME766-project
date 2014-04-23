@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<unistd.h>
 #include<time.h>
 
 int** Make2DIntArray(int arraySizeX, int arraySizeY) {
@@ -55,7 +56,7 @@ theArray = (int*)malloc(arraySizeX*sizeof(int));
 int i;
 for (i=0;i<arraySizeX;i++)
 {
-    theArray[i]=0.0;
+    theArray[i]=0;
 }
 
    return theArray;
@@ -65,8 +66,8 @@ for (i=0;i<arraySizeX;i++)
 void main()
 {
 
-	const int N=1000;
-	const int Dsize=5000;
+	const int N=6;
+	const int Dsize=50;
 	FILE *arr;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
@@ -74,10 +75,11 @@ void main()
 	int* col=Make1DIntArray(Dsize);
 	int* row=Make1DIntArray(Dsize);
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix.txt","r");
+	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
+	row[0]=0;
 	for(i=0;i<N;i++)
 	{
 		for(j=0;j<N;j++)
@@ -88,18 +90,19 @@ void main()
 				val[k]=a[i][j];
 				col[k]=j;
 				cinrow++;
-				if(cinrow==1)
-				{
-					row[i]=i*3+j;
-				}
 				k++;
 			}	
+			
 		}
+	printf("\n no of elements in row %d is %d\n",i,cinrow);
+	row[i+1]=row[i]+cinrow;
 	cinrow=0;
 		
 	}
-	
+
 	row[i]=k;
+       	printf("\n k = %d\n ", k);
+       	//sleep(10);
 	gettimeofday(&end, NULL);
 
 	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
@@ -112,16 +115,21 @@ void main()
 	{
 		printf("%d\t",val[i]);
 	}
+	printf("\n");
+	
 	printf("col=");
         for(i=0;i<Dsize;i++)
         {
                 printf("%d\t",col[i]);
         }
+        printf("\n");
 	printf("row=");
 	for(i=0;i<Dsize;i++)
         {
                 printf("%d\t",row[i]);
         }
+        printf("\n");
+
 
 
 
