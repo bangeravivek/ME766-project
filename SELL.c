@@ -157,6 +157,22 @@ void main()
 	{
 		printf("%d\n",vecX[i]);
 	}
+	
+	int cols[6]={8,6,5,9,10,12};
+	int** varmat=Make2DVariableIntArray(30,6,5,cols);
+	
+	for (i=0;i<6;i++)
+	{
+		for(j=0;j<5;j++)
+		{
+			printf("\n");
+			for (k=0;k<cols[i];k++)
+			{
+				printf("%d ",varmat[i*5+j][k]);
+			}
+		}
+	}
+	printf("\n");
 //printing val, col and row
 	/*
 	printf("Val=");
