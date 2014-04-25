@@ -106,7 +106,7 @@ void main()
 	
 	const int Dsize=50;
 	FILE *arr, *vec;
-	int i,j,maxrowwidth;
+	int i,j,maxrowwidth=0,tint=0;
 	int** a=Make2DIntArray(N,N);
 	int* val=Make1DIntArray(Dsize);
 	int* col=Make1DIntArray(Dsize);
@@ -116,7 +116,7 @@ void main()
 	int** scval=Make2DIntArray(N,N);    //sell c value
 	int** sccol=Make2DIntArray(N,N);	//sell c col
 	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
-
+	int* temp=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
 	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
@@ -166,12 +166,31 @@ void main()
 				sccol[i][k]=j;
 				rowwidth[i]=k+1;
 				if(rowwidth[i]>maxrowwidth)
+				{	printf("\nrow[%d] width=%d\n",i,maxrowwidth);
 					maxrowwidth=rowwidth[i];
-				k++;
+				}k++;
 			}
 		}
 		k=0;
 	}
+	for(i=0;i<N-1;i++)
+	{
+	for(j=0;j<N;j++)
+	{
+		if(rowwidth[j]<rowwidth[j+1])
+		{	printf("\nrow %d width=%d",j,rowwidth[j]);
+			temp=scval[j];
+			scval[j]=scval[j+1];
+			scval[j+1]=temp;
+			temp=sccol[j];
+			sccol[j]=sccol[j+1];
+			sccol[j+1]=temp;
+			tint=rowwidth[j];
+			rowwidth[j]=rowwidth[j+1];
+			rowwidth[j+1]=tint;	
+		}
+	}
+	}	
 		
 	printf("\nmaxrowwidth=%d\n",maxrowwidth);				
 	printmat(scval,N,maxrowwidth);
@@ -189,10 +208,10 @@ void main()
 	{
 		for(j=0;j<5;j++)
 		{
-			printf("\n");
+	//		printf("\n");
 			for (k=0;k<cols[i];k++)
 			{
-				printf("%d ",varmat[i*5+j][k]);
+	//			printf("%d ",varmat[i*5+j][k]);
 			}
 		}
 	}
