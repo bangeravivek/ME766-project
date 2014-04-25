@@ -76,8 +76,8 @@ void freese(int sizeX, int sizeY, double** ptr)
 void main()
 {
 
-	const int N=6;
-	const int Dsize=20;
+	const int N=1000;
+	const int Dsize=10000;
 	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
@@ -87,7 +87,7 @@ void main()
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
-	arr=fopen("mat.txt","r");
+	arr=fopen("matrix.txt","r");
 	int k=0,cinrow=0;
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
@@ -106,10 +106,14 @@ void main()
 			}	
 			
 		}
-	printf("\n no of elements in row %d is %d\n",i,cinrow);
-	row[i+1]=row[i]+cinrow;
-	cinrow=0;
-		
+	if(k>Dsize)
+	{
+		printf("\n no of elements in row %d is %d\n",i,cinrow);
+		printf("\n k = %d\n ", k);
+		sleep(1);
+		row[i+1]=row[i]+cinrow;
+		cinrow=0;
+	}	
 	}
 
 	row[i]=k;
@@ -122,12 +126,14 @@ void main()
 
 	printf("\nTime spent=%f\n", delta);	
 
-	vec=fopen("vec.txt","r");
+	vec=fopen("vector.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
 	}
-	printf("\n Vector is:\n");
+	
+	
+	/*printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",vecX[i]);
@@ -157,19 +163,20 @@ void main()
 
 
         /*Now the actual multiplication kernel*/
-        for (i=0;i<N;i++)
+       	for (i=0;i<N;i++)
         {
         	for (j=row[i];j<row[i+1];j++)
         	{
         		result[i]+=val[j]*vecX[col[j]];
         	}
        	}
+/*
 	printf("\n Result is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",result[i]);
 	}      
-
+*/
 
 }
 
