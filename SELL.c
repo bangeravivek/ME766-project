@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<cuda.h>
+//#include<cuda.h>
 #include<unistd.h>
 #include<time.h>
 
@@ -17,6 +17,35 @@ for (i=0;i<arraySizeX;i++)
     for (j=0;j<arraySizeY;j++)
     {
         theArray[i][j]=0;
+    }
+}
+
+   return theArray;
+}
+
+int** Make2DVariableIntArray(int rows, int blocks, int blocksize, int* columns) {
+int** theArray;
+theArray = (int**) malloc(rows*sizeof(int*));
+int i, j, k;
+for (i = 0; i < blocks; i++)
+{
+	k=columns[i];
+	for (j=0; j < blocksize; j++)
+	{
+		theArray[i*blocksize+j] = (int*) malloc(k*sizeof(int));
+	}
+   
+}
+//int j;
+
+for (i=0;i<blocks;i++)
+{
+    for (j=0;j<blocksize;j++)
+    {
+    	for (k=0;k<columns[i];k++)
+	{
+	        theArray[i*blocksize+j][k]=0;
+    	}
     }
 }
 
@@ -73,5 +102,100 @@ void freese(int sizeX, int sizeY, double** ptr)
 
 void main()
 {
+	const int N=6;
 	
+	const int Dsize=50;
+	FILE *arr, *vec;
+	int i,j;
+	int** a=Make2DIntArray(N,N);
+	int* val=Make1DIntArray(Dsize);
+	int* col=Make1DIntArray(Dsize);
+	int* row=Make1DIntArray(Dsize);
+	int* result=Make1DIntArray(N);
+	int* vecX=Make1DIntArray(N);
+	//int val[10],col[10],row[10];
+	arr=fopen("mat.txt","r");
+	int k=0,cinrow=0;
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
+	row[0]=0;
+	
+	//Reading the vector
+	
+	vec=fopen("vec.txt","r");
+	for (i=0;i<N;i++)
+	{
+		fscanf(vec,"%d",&vecX[i]);
+	}
+	
+	//Reading the matrix
+	
+	for(i=0;i<N;i++)
+	{	
+		printf("\n");
+		for(j=0;j<N;j++)
+		{
+			fscanf(arr,"%d",&a[i][j]);
+			printf("%d ",a[i][j]);
+		}
+		
+	}
+	printf("\n");
+	//row[i]=k;
+       	//printf("\n k = %d\n ", k);
+       	//sleep(10);
+	gettimeofday(&end, NULL);
+
+	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
+	         end.tv_usec - start.tv_usec) / 1.e6;
+
+	printf("\nTime spent=%f\n", delta);	
+
+
+	printf("\n Vector is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",vecX[i]);
+	}
+//printing val, col and row
+	/*
+	printf("Val=");
+	for(i=0;i<Dsize;i++)
+	{
+		printf("%d\t",val[i]);
+	}
+	printf("\n");
+	
+	printf("col=");
+        for(i=0;i<Dsize;i++)
+        {
+                printf("%d\t",col[i]);
+        }
+        printf("\n");
+	printf("row=");
+	for(i=0;i<Dsize;i++)
+        {
+                printf("%d\t",row[i]);
+        }
+        */
+        printf("\n");
+
+
+        /*Now the actual multiplication kernel
+        for (i=0;i<N;i++)
+        {
+        	for (j=row[i];j<row[i+1];j++)
+        	{
+        		result[i]+=val[j]*vecX[col[j]];
+        	}
+       	}
+	printf("\n Result is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",result[i]);
+	}      
+	*/
+        
+        
+
 }
