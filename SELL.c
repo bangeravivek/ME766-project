@@ -113,6 +113,9 @@ void main()
 	int* row=Make1DIntArray(Dsize);
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
+	int** scval=Make2DIntArray(N,N);
+	int** sccol=Make2DIntArray(N,N);
+
 	//int val[10],col[10],row[10];
 	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
@@ -151,7 +154,21 @@ void main()
 
 	printf("\nTime spent=%f\n", delta);	
 
+	
+	for(i=0;i<N;i++)
+	{
+		for(j=0;j<N;j++)
+		{	
+			if(a[i][j]!=0)
+			{
+				scval[i][k]=a[i][j];
+				k++;
+			}
+		}k=0;
 
+	}
+					
+	printmat(scval,N);
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
