@@ -14,6 +14,8 @@ for i in range(0,1000):
 			Z=str(randint(0,100))
 			f.write(Z+' ')
 			#f.write(' ')
+		else:
+			f.write('0 ');
 	f.write("\n")
 
 for i in range(0,1000):
