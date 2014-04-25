@@ -3,20 +3,21 @@
 #include<unistd.h>
 #include<time.h>
 
-int** Make2DIntArray(int arraySizeX, int arraySizeY) {
-int** theArray;
-theArray = (int**) malloc(arraySizeX*sizeof(int*));
-int i;
-for (i = 0; i < arraySizeX; i++)
-   theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
-int j;
-
-for (i=0;i<arraySizeX;i++)
+int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
-    for (j=0;j<arraySizeY;j++)
-    {
-        theArray[i][j]=0;
-    }
+	int** theArray;
+	theArray = (int**) malloc(arraySizeX*sizeof(int*));
+	int i;
+	for (i = 0; i < arraySizeX; i++)
+  	 theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
+	int j;
+
+	for (i=0;i<arraySizeX;i++)
+	{
+    	for (j=0;j<arraySizeY;j++)
+    	{
+       	 theArray[i][j]=0;
+    	}
 }
 
    return theArray;
@@ -76,7 +77,7 @@ void main()
 {
 
 	const int N=6;
-	const int Dsize=50;
+	const int Dsize=20;
 	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
@@ -168,9 +169,7 @@ void main()
 	{
 		printf("%d\n",result[i]);
 	}      
-	
-        
-        
+
 
 }
 
