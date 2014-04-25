@@ -64,16 +64,16 @@ void init_zeros(int** matrix, int N)
 	}
 }
 
-void printmat(int** matrix, int N)
+void printmat(int** matrix, int N, int Nj)
 {
 	int i,j;
 	
 	for (i=0;i<N;i++)
 	{	
 		printf("\n");
-		for (j=0;j<N;j++)
+		for (j=0;j<Nj;j++)
 		{
-			printf("%d \t",matrix[i][j]);
+			printf("%d ",matrix[i][j]);
 		}
 	}
 	printf("\n");
@@ -106,15 +106,16 @@ void main()
 	
 	const int Dsize=50;
 	FILE *arr, *vec;
-	int i,j;
+	int i,j,maxrowwidth;
 	int** a=Make2DIntArray(N,N);
 	int* val=Make1DIntArray(Dsize);
 	int* col=Make1DIntArray(Dsize);
 	int* row=Make1DIntArray(Dsize);
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
-	int** scval=Make2DIntArray(N,N);
-	int** sccol=Make2DIntArray(N,N);
+	int** scval=Make2DIntArray(N,N);    //sell c value
+	int** sccol=Make2DIntArray(N,N);	//sell c col
+	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
 
 	//int val[10],col[10],row[10];
 	arr=fopen("mat.txt","r");
@@ -162,13 +163,19 @@ void main()
 			if(a[i][j]!=0)
 			{
 				scval[i][k]=a[i][j];
+				sccol[i][k]=j;
+				rowwidth[i]=k+1;
+				if(rowwidth[i]>maxrowwidth)
+					maxrowwidth=rowwidth[i];
 				k++;
 			}
-		}k=0;
-
+		}
+		k=0;
 	}
-					
-	printmat(scval,N);
+		
+	printf("\nmaxrowwidth=%d\n",maxrowwidth);				
+	printmat(scval,N,maxrowwidth);
+	 printmat(sccol,N,maxrowwidth);
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
