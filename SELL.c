@@ -4,26 +4,26 @@
 #include<unistd.h>
 #include<time.h>
 
-int** Make2DIntArray(int arraySizeX, int arraySizeY) {
-int** theArray;
-theArray = (int**) malloc(arraySizeX*sizeof(int*));
-int i;
-for (i = 0; i < arraySizeX; i++)
-   theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
-int j;
-
-for (i=0;i<arraySizeX;i++)
+int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
-    for (j=0;j<arraySizeY;j++)
-    {
-        theArray[i][j]=0;
-    }
+	int** theArray;
+	theArray = (int**) malloc(arraySizeX*sizeof(int*));
+	int i;
+	for (i = 0; i < arraySizeX; i++)
+	   theArray[i] = (int*) malloc(arraySizeY*sizeof(int));
+	int j;
+	for (i=0;i<arraySizeX;i++)
+	{
+	    for (j=0;j<arraySizeY;j++)
+	    {
+	        theArray[i][j]=0;
+	    }
+	}
+	return theArray;
 }
 
-   return theArray;
-}
-
-int** Make2DVariableIntArray(int rows, int blocks, int blocksize, int* columns) {
+int** Make2DVariableIntArray(int rows, int blocks, int blocksize, int* columns)
+{
 int** theArray;
 theArray = (int**) malloc(rows*sizeof(int*));
 int i, j, k;
@@ -50,6 +50,26 @@ for (i=0;i<blocks;i++)
 }
 
    return theArray;
+}
+
+int** Changeto2DVariableIntArray(int** theArray,int rows, int blocks, int blocksize, int* columns)
+{
+
+int** NewArray=Make2DVariableIntArray(rows,blocks,blocksize,columns);
+int i, j, k;
+
+for (i=0;i<blocks;i++)
+{
+    for (j=0;j<blocksize;j++)
+    {
+        for (k=0;k<columns[i];k++)
+        {
+                NewArray[i*blocksize+j][k]=theArray[i*blocksize+j][k];
+        }
+    }
+}
+
+   return NewArray;
 }
 
 void init_zeros(int** matrix, int N)
@@ -194,24 +214,24 @@ void main()
 		
 	printf("\nmaxrowwidth=%d\n",maxrowwidth);				
 	printmat(scval,N,maxrowwidth);
-	 printmat(sccol,N,maxrowwidth);
+	printmat(sccol,N,maxrowwidth);
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",vecX[i]);
 	}
 	
-	int cols[6]={8,6,5,9,10,12};
-	int** varmat=Make2DVariableIntArray(30,6,5,cols);
+	int cols[3]={4,3,3};
+	int** varmat=Changeto2DVariableIntArray(scval,N,N/2,2,cols);
 	
-	for (i=0;i<6;i++)
+	for (i=0;i<N;i++)
 	{
-		for(j=0;j<5;j++)
+		for(j=0;j<2;j++)
 		{
-	//		printf("\n");
+			printf("\n");
 			for (k=0;k<cols[i];k++)
 			{
-	//			printf("%d ",varmat[i*5+j][k]);
+				printf("%d ",varmat[i*2+j][k]);
 			}
 		}
 	}
