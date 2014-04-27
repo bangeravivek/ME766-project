@@ -71,12 +71,27 @@ void freese(int sizeX, int sizeY, double** ptr)
     free(ptr);
 }
 
-
+void printtofile1D(int* matrix, int K, char* filename)
+{
+	/*
+	Prints resultant matrix to a file
+	*/
+	FILE *fp;
+	fp=fopen(filename,"wt");
+	int i;
+	
+	for (i=0;i<K;i++)
+	{
+		fprintf(fp, "%d\n", matrix[i]);
+		
+	}
+	
+}
 
 void main()
 {
 
-	const int N=1000;
+	const int N=100;
 	const int Dsize=10000;
 	FILE *arr, *vec;
 	int i,j;
@@ -87,10 +102,9 @@ void main()
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix.txt","r");
+	arr=fopen("matrix100.txt","r");
 	int k=0,cinrow=0;
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
+
 	row[0]=0;
 	for(i=0;i<N;i++)
 	{
@@ -106,34 +120,27 @@ void main()
 			}	
 			
 		}
-	if(k>Dsize)
-	{
-		printf("\n no of elements in row %d is %d\n",i,cinrow);
-		printf("\n k = %d\n ", k);
-		sleep(1);
 		row[i+1]=row[i]+cinrow;
 		cinrow=0;
-	}	
+		
 	}
 
 	row[i]=k;
        	printf("\n k = %d\n ", k);
        	//sleep(10);
-	gettimeofday(&end, NULL);
 
-	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
-	         end.tv_usec - start.tv_usec) / 1.e6;
 
-	printf("\nTime spent=%f\n", delta);	
-
-	vec=fopen("vector.txt","r");
+	vec=fopen("vector100.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
+		
 	}
 	
+
 	
-	/*printf("\n Vector is:\n");
+	
+	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",vecX[i]);
@@ -152,17 +159,20 @@ void main()
         {
                 printf("%d\t",col[i]);
         }
-        printf("\n");
+        */printf("\n");
 	printf("row=");
-	for(i=0;i<Dsize;i++)
+	for(i=0;i<k;i++)
         {
                 printf("%d\t",row[i]);
         }
-        */
+        
         printf("\n");
 
 
         /*Now the actual multiplication kernel*/
+        
+	struct timeval start, end;
+	gettimeofday(&start, NULL);        
        	for (i=0;i<N;i++)
         {
         	for (j=row[i];j<row[i+1];j++)
@@ -170,6 +180,15 @@ void main()
         		result[i]+=val[j]*vecX[col[j]];
         	}
        	}
+	
+	gettimeofday(&end, NULL);
+
+	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
+	         end.tv_usec - start.tv_usec) / 1.e6;
+
+	printf("\nTime spent=%f\n", delta);	
+	
+	printtofile1D(result,N,"results.txt");
 /*
 	printf("\n Result is:\n");
 	for (i=0;i<N;i++)

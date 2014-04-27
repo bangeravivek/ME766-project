@@ -10,16 +10,21 @@ __global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *col
         int sum=0;
         int i;
         int colidx=tid/2;
-        printf("\n tid=%d", tid);
-        printf("\ncols[%d]=%d",colidx,cols[colidx]);
+//        printf("\n tid=%d", tid);
+//        printf("\ncols[%d]=%d",colidx,cols[colidx]);
    	for(i=0;i<cols[colidx];i++)
 	{
 		sum += vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i];
-//		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
-		printf("\n%d*%d=%d",scval[rowptr[tid]+i],vec[sccol[rowptr[tid]+i]],vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i]);
+		if(tid==1)
+		{
+			printf("\n HAHAHAHA");
+		
+		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
+//		printf("\ntid=%d, %d*%d=%d",tid, scval[rowptr[tid]+i],vec[sccol[rowptr[tid]+i]],vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i]);
 //		printf("\nsccol[%d]=%d",rowptr[tid]+i, sccol[rowptr[tid]+i]);
-		printf("\nvec[%d]=%d",sccol[rowptr[tid]+i], vec[sccol[rowptr[tid]+i]]);
-//		printf("\nSum=%d", sum);
+//		printf("\nvec[%d]=%d",sccol[rowptr[tid]+i], vec[sccol[rowptr[tid]+i]]);
+		printf("\nSum=%d", sum);
+		}
 		printf("\n");
 		
 	}
@@ -29,7 +34,7 @@ __global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *col
 
 __global__ void printmatscreen(int* mat, int N)
 {
-	int i,j;
+	int i;
 	for (i=0;i<N;i++)
 	{	
 		printf("%d ",mat[i]);
@@ -211,10 +216,11 @@ int main()
 	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
 	int* temp=Make1DIntArray(N);
 	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
-	
+	int* rows=Make1DIntArray(N);
+	int* resultsordered=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
 	arr=fopen("mat.txt","r");
-	int k=0,cinrow=0;
+	int k=0;
 //	struct timeval start, end;
 //	gettimeofday(&start, NULL);
 	
@@ -225,6 +231,7 @@ int main()
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
+		rows[i]=i;
 	}
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
@@ -306,6 +313,9 @@ int main()
 			tint=rowwidth[j];
 			rowwidth[j]=rowwidth[j+1];
 			rowwidth[j+1]=tint;
+			tint=rows[j];
+			rows[j]=rows[j+1];
+			rows[j+1]=tint;
 			
 		}
 	}
@@ -412,7 +422,7 @@ int main()
         cudaMalloc((void**)&dev_result, sizeof(int)*N);
         cudaMalloc((void**)&dev_sccol, sizeof(int)*varsize);	
         cudaMalloc((void**)&dev_cols, sizeof(int)*(N/c));
-        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N/c);
+        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N);
 		
 	cudaMemcpy(dev_vec, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_scval, scval_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
@@ -428,14 +438,23 @@ int main()
 	printmatscreen<<<1,1>>>(dev_scval,varsize);
 	printmatscreen<<<1,1>>>(dev_sccol,varsize);
 	printmatscreen<<<1,1>>>(dev_cols,(N/c));
+	printmatscreen<<<1,1>>>(dev_rowptr,N);
 	//sleep(5);
 	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
 	//__syncthreads();
 	cudaMemcpy(result, dev_result, sizeof(int)*N, cudaMemcpyDeviceToHost);
+
         for (i=0;i<N;i++)
         {
-        	printf("\n%d",result[i]);
+        	printf("\nrow[%d]=%d",i,rows[i]);
+        	resultsordered[rows[i]]=result[i];
+        }
+
+        for (i=0;i<N;i++)
+        {
+        	printf("\n%d",resultsordered[i]);
         }	
+                
 	cudaFree(dev_vec);
         cudaFree(dev_scval);
         cudaFree(dev_result);
