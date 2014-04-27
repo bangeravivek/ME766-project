@@ -1,0 +1,316 @@
+vivek-desktop
+    description: Computer
+    width: 32 bits
+  *-core
+       description: Motherboard
+       physical id: 0
+     *-memory:0
+          description: System memory
+          physical id: 3
+          size: 2013MiB
+     *-cpu
+          product: AMD Athlon(tm) 64 X2 Dual Core Processor 4000+
+          vendor: Advanced Micro Devices [AMD]
+          physical id: 5
+          bus info: cpu@0
+          version: 15.11.1
+          size: 2100MHz
+          width: 64 bits
+          capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt rdtscp x86-64 3dnowext 3dnow extd_apicid pni cx16 lahf_lm cmp_legacy svm extapic cr8_legacy 3dnowprefetch
+        *-cache:0
+             description: L1 cache
+             physical id: 0
+             size: 128KiB
+        *-cache:1
+             description: L2 cache
+             physical id: 1
+             size: 512KiB
+     *-memory:1 UNCLAIMED
+          description: RAM memory
+          product: MCP67 Memory Controller
+          vendor: nVidia Corporation
+          physical id: 0
+          bus info: pci@0000:00:00.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz (15.2ns)
+          capabilities: bus_master cap_list
+          configuration: latency=0
+     *-isa
+          description: ISA bridge
+          product: MCP67 ISA Bridge
+          vendor: nVidia Corporation
+          physical id: 1
+          bus info: pci@0000:00:01.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: isa bus_master
+          configuration: latency=0
+          resources: ioport:900(size=256)
+     *-serial
+          description: SMBus
+          product: MCP67 SMBus
+          vendor: nVidia Corporation
+          physical id: 1.1
+          bus info: pci@0000:00:01.1
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: cap_list
+          configuration: driver=nForce2_smbus latency=0
+          resources: irq:10 ioport:dc00(size=64) ioport:600(size=64) ioport:700(size=64)
+     *-usb:0
+          description: USB Controller
+          product: MCP67 OHCI USB 1.1 Controller
+          vendor: nVidia Corporation
+          physical id: 2
+          bus info: pci@0000:00:02.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list
+          configuration: driver=ohci_hcd latency=0 maxlatency=1 mingnt=3
+          resources: irq:23 memory:deeff000-deefffff
+     *-usb:1
+          description: USB Controller
+          product: MCP67 EHCI USB 2.0 Controller
+          vendor: nVidia Corporation
+          physical id: 2.1
+          bus info: pci@0000:00:02.1
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list
+          configuration: driver=ehci_hcd latency=0 maxlatency=1 mingnt=3
+          resources: irq:22 memory:deefec00-deefecff
+     *-usb:2
+          description: USB Controller
+          product: MCP67 OHCI USB 1.1 Controller
+          vendor: nVidia Corporation
+          physical id: 4
+          bus info: pci@0000:00:04.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list
+          configuration: driver=ohci_hcd latency=0 maxlatency=1 mingnt=3
+          resources: irq:21 memory:deefd000-deefdfff
+     *-usb:3
+          description: USB Controller
+          product: MCP67 EHCI USB 2.0 Controller
+          vendor: nVidia Corporation
+          physical id: 4.1
+          bus info: pci@0000:00:04.1
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list
+          configuration: driver=ehci_hcd latency=0 maxlatency=1 mingnt=3
+          resources: irq:20 memory:deefe800-deefe8ff
+     *-ide:0
+          description: IDE interface
+          product: MCP67 IDE Controller
+          vendor: nVidia Corporation
+          physical id: 6
+          bus info: pci@0000:00:06.0
+          version: a1
+          width: 32 bits
+          clock: 66MHz
+          capabilities: ide bus_master cap_list
+          configuration: driver=pata_amd latency=0 maxlatency=1 mingnt=3
+          resources: irq:0 ioport:1f0(size=8) ioport:3f6 ioport:170(size=8) ioport:376 ioport:ffa0(size=16)
+     *-multimedia
+          description: Audio device
+          product: MCP67 High Definition Audio
+          vendor: nVidia Corporation
+          physical id: 7
+          bus info: pci@0000:00:07.0
+          version: a1
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list
+          configuration: driver=HDA Intel latency=0 maxlatency=5 mingnt=2
+          resources: irq:21 memory:deef8000-deefbfff
+     *-pci:0
+          description: PCI bridge
+          product: MCP67 PCI Bridge
+          vendor: nVidia Corporation
+          physical id: 8
+          bus info: pci@0000:00:08.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: pci bus_master cap_list
+     *-ide:1
+          description: IDE interface
+          product: MCP67 AHCI Controller
+          vendor: nVidia Corporation
+          physical id: 9
+          bus info: pci@0000:00:09.0
+          version: a2
+          width: 32 bits
+          clock: 66MHz
+          capabilities: ide bus_master cap_list
+          configuration: driver=ahci latency=0 maxlatency=1 mingnt=3
+          resources: irq:23 ioport:d480(size=8) ioport:d400(size=4) ioport:d080(size=8) ioport:d000(size=4) ioport:cc00(size=16) memory:deef6000-deef7fff
+     *-network
+          description: Ethernet interface
+          product: MCP67 Ethernet
+          vendor: nVidia Corporation
+          physical id: a
+          bus info: pci@0000:00:0a.0
+          logical name: eth1
+          version: a2
+          serial: 00:1d:60:80:f1:87
+          width: 32 bits
+          clock: 66MHz
+          capabilities: bus_master cap_list ethernet physical
+          configuration: broadcast=yes driver=forcedeth driverversion=0.64 ip=10.107.2.90 latency=0 maxlatency=20 mingnt=1 multicast=yes
+          resources: irq:31 memory:deefc000-deefcfff ioport:c880(size=8) memory:deefe400-deefe4ff memory:deefe000-deefe00f
+     *-pci:1
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: b
+          bus info: pci@0000:00:0b.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:24 ioport:e000(size=4096) memory:def00000-dfffffff ioport:d0000000(size=234881024)
+        *-display
+             description: VGA compatible controller
+             product: nVidia Corporation
+             vendor: nVidia Corporation
+             physical id: 0
+             bus info: pci@0000:02:00.0
+             version: a1
+             width: 64 bits
+             clock: 33MHz
+             capabilities: bus_master cap_list rom
+             configuration: driver=nvidia latency=0
+             resources: irq:19 memory:df000000-dfffffff memory:d0000000-d7ffffff(prefetchable) memory:dc000000-ddffffff(prefetchable) ioport:ec00(size=128) memory:def80000-deffffff(prefetchable)
+        *-multimedia UNCLAIMED
+             description: Audio device
+             product: nVidia Corporation
+             vendor: nVidia Corporation
+             physical id: 0.1
+             bus info: pci@0000:02:00.1
+             version: a1
+             width: 32 bits
+             clock: 33MHz
+             capabilities: bus_master cap_list
+             configuration: latency=0
+             resources: memory:def7c000-def7ffff
+     *-pci:2
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: c
+          bus info: pci@0000:00:0c.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:25
+     *-pci:3
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: d
+          bus info: pci@0000:00:0d.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:26
+     *-pci:4
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: e
+          bus info: pci@0000:00:0e.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:27
+     *-pci:5
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: f
+          bus info: pci@0000:00:0f.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:28
+     *-pci:6
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: 10
+          bus info: pci@0000:00:10.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:29
+     *-pci:7
+          description: PCI bridge
+          product: MCP67 PCI Express Bridge
+          vendor: nVidia Corporation
+          physical id: 11
+          bus info: pci@0000:00:11.0
+          version: a2
+          width: 32 bits
+          clock: 33MHz
+          capabilities: pci bus_master cap_list
+          configuration: driver=pcieport
+          resources: irq:30
+     *-pci:8
+          description: Host bridge
+          product: K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+          vendor: Advanced Micro Devices [AMD]
+          physical id: 100
+          bus info: pci@0000:00:18.0
+          version: 00
+          width: 32 bits
+          clock: 33MHz
+     *-pci:9
+          description: Host bridge
+          product: K8 [Athlon64/Opteron] Address Map
+          vendor: Advanced Micro Devices [AMD]
+          physical id: 101
+          bus info: pci@0000:00:18.1
+          version: 00
+          width: 32 bits
+          clock: 33MHz
+     *-pci:10
+          description: Host bridge
+          product: K8 [Athlon64/Opteron] DRAM Controller
+          vendor: Advanced Micro Devices [AMD]
+          physical id: 102
+          bus info: pci@0000:00:18.2
+          version: 00
+          width: 32 bits
+          clock: 33MHz
+     *-pci:11
+          description: Host bridge
+          product: K8 [Athlon64/Opteron] Miscellaneous Control
+          vendor: Advanced Micro Devices [AMD]
+          physical id: 103
+          bus info: pci@0000:00:18.3
+          version: 00
+          width: 32 bits
+          clock: 33MHz
+          configuration: driver=k8temp
+          resources: irq:0

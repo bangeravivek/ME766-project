@@ -91,7 +91,7 @@ void printtofile1D(int* matrix, int K, char* filename)
 void main()
 {
 
-	const int N=100;
+	const int N=1000;
 	const int Dsize=10000;
 	FILE *arr, *vec;
 	int i,j;
@@ -180,7 +180,7 @@ void main()
         		result[i]+=val[j]*vecX[col[j]];
         	}
        	}
-	
+
 	gettimeofday(&end, NULL);
 
 	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
