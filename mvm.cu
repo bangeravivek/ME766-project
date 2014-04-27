@@ -4,16 +4,37 @@
 #include<unistd.h>
 #include<time.h>
 
-__global__ void multiply(float *vec, float *mat, float *out, const int N, const int M)
+__global__ void multiply(int *vec, int *mat, int *out, const int N, const int M)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
-        float sum=0;
+        int sum=0;
+        printf("\n tid = %d",tid);
 	if(tid<M)
 	{
         	for(int i=0; i<N; i++)
-        		sum += vec[i]*mat[(i*M)+tid];
-        	out[tid]=sum;
+        	{	
+        		sum += vec[i]*mat[(tid*M)+i];
+        		printf("\n tid*M+i = %d", (tid*M)+i);
+        		printf("\n vec[%d] = %d",i,vec[i]);
+        		printf("\n mat[%d] = %d", (tid*M)+i, mat[(tid*M)+i]);
+        	}
+        	
    	}
+   	out[tid]=sum;
+}
+
+__global__ void printmatscreen(int* mat, int N)
+{
+	int i,j;
+	for (i=0;i<N;i++)
+	{	
+		printf("\n");
+		for (j=0;j<N;j++)
+		{
+			printf("%d ",mat[(i*N)+j]);
+		}
+	}
+	printf("\n");
 }
 
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
@@ -170,9 +191,9 @@ void freese(int sizeX, int sizeY, double** ptr)
     free(ptr);
 }
 
-void main()
+int main()
 {
-	const int N=100;
+	const int N=6;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -198,9 +219,9 @@ void main()
         
 	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
-	row[0]=0;
+//	struct timeval start, end;
+	//gettimeofday(&start, NULL);
+	//row[0]=0;
 	
 	//Reading the vector
 	
@@ -208,6 +229,12 @@ void main()
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
+	}
+	
+	printf("\n Vector is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",vecX[i]);
 	}
 	
 	//Reading the matrix
@@ -226,29 +253,36 @@ void main()
 	//row[i]=k;
        	//printf("\n k = %d\n ", k);
        	//sleep(10);
-	gettimeofday(&end, NULL);
+	//gettimeofday(&end, NULL);
 
-	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
-	         end.tv_usec - start.tv_usec) / 1.e6;
+//	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
+//	         end.tv_usec - start.tv_usec) / 1.e6;
 
-	printf("\nTime spent=%f\n", delta);	
+//	printf("\nTime spent=%f\n", delta);	
 
 	int counter=0;
 	for (i=0;i<N;i++)
 	{
+		printf("\n");
 		for(j=0;j<N;j++)
 		{
 			aflat[counter]=a[i][j];
+			printf("%d ",aflat[counter]);
+			counter+=1;
 		}
 	}
+	printf("\n");
+	counter=0;
 
+	sleep(5);
 	cudaMemcpy(dev_a, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_b, aflat, sizeof(int)*N*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_c, result, sizeof(int)*N, cudaMemcpyHostToDevice);
         
-	kernel<<<N, N>>>(dev_a, dev_b, dev_c, N, N);
+        printmatscreen<<<1,1>>>(dev_b,N);
+	multiply<<<N,N>>>(dev_a, dev_b, dev_c, N, N);
 	
-	cudaMemcpy(result, dev_c, sizeof(int)*M, cudaMemcpyDeviceToHost);
+	cudaMemcpy(result, dev_c, sizeof(int)*N, cudaMemcpyDeviceToHost);
 
         for (i=0;i<N;i++)
         {
@@ -322,12 +356,8 @@ void main()
 	printf("\nmaxrowwidth=%d\n",maxrowwidth);				
 	printtofile(scval,N,"scval.txt");
 	printtofile(sccol,N,"sccol.txt");
-	printf("\n Vector is:\n");
-	for (i=0;i<N;i++)
-	{
-		printf("%d\n",vecX[i]);
-	}
 	*/
+	
 	
 	/* NEED TO FIGURE OUT A WAY TO POPULATE cols SO AS TO HAVE varmat CREATED PROPERLY. SYSTEM CRASHES OTHERWISE
 	
@@ -387,5 +417,5 @@ void main()
 	*/
         
         
-
+	return 0;
 }
