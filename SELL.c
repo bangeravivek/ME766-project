@@ -4,6 +4,22 @@
 #include<unistd.h>
 #include<time.h>
 
+__global__ void multiply(float* A, float* B, float* C, int K)
+{
+	/*
+	The Kernel is a 2D grid. Tried doing the same with a 1D grid but it requires 2 for loops
+	*/
+	int index1=blockIdx.x*blockDim.x+threadIdx.x;
+	int index2=blockIdx.y*blockDim.y+threadIdx.y; 
+	float sum=0.0;
+	for (int i=0;i<K;i++)
+	{
+		sum+=A[index2*K+i]*B[i*K+index1];
+	}
+	
+	C[index2*K+index1]=sum;
+}
+
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
 	int** theArray;
