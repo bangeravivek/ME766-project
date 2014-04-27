@@ -3,19 +3,32 @@
 //#include<cuda.h>
 #include<unistd.h>
 #include<time.h>
+<<<<<<< HEAD
+/*
+__global__ void multiply(float* A, float* B, float* C, int K)
+{
+	
+	The Kernel is a 2D grid. Tried doing the same with a 1D grid but it requires 2 for loops
+
+	int index1=blockIdx.x*blockDim.x+threadIdx.x;
+	int index2=blockIdx.y*blockDim.y+threadIdx.y; 
+	float sum=0.0;
+	for (int i=0;i<K;i++)
+=======
 
 __global__ void multiply(float *vec, float *mat, float *out, const int N, const int M)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
         float sum=0;
 	if(tid<M)
+>>>>>>> d26b32f66a796d65ce6b7491a85156c48dcb3f35
 	{
         	for(int i=0; i<N; i++)
         		sum += vec[i]*mat[(i*M)+tid];
         	out[tid]=sum;
    	}
 }
-
+*/
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
 	int** theArray;
@@ -80,7 +93,7 @@ for (i=0;i<blocks;i++)
         }
     }
 }
-
+printf("changed to multiple matrixes");
    return NewArray;
 }
 
@@ -187,13 +200,13 @@ void main()
 	int** sccol=Make2DIntArray(N,N);	//sell c col
 	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
 	int* temp=Make1DIntArray(N);
-	int* cols=Make1DIntArray(N/2);
+	
 	//int val[10],col[10],row[10];
 	arr=fopen("matrix100.txt","r");
 	int k=0,cinrow=0;
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
-	row[0]=0;
+	
 	
 	//Reading the vector
 	
@@ -259,8 +272,8 @@ void main()
 	for(j=0;j<N-1;j++)
 	{
 		if(rowwidth[j]<rowwidth[j+1])
-		{	printf("\nrow %d width=%d",j,rowwidth[j]);
-			/*printf("\nscval[%d]=",j);
+		{	/*printf("\nrow %d width=%d",j,rowwidth[j]);
+			printf("\nscval[%d]=",j);
 			for(k=0;k<rowwidth[j];k++)
 			{
 				printf("%d ", scval[j][k]);
@@ -287,9 +300,10 @@ void main()
 	}
 	}	
 		
-	printf("\nmaxrowwidth=%d\n",maxrowwidth);				
-	printtofile(scval,N,"scval.txt");
-	printtofile(sccol,N,"sccol.txt");
+	printf("\nmaxrowwidth=%d\n",maxrowwidth);
+//	printmat(scval,N,N);
+//	printtofile(scval,N,"scval.txt");
+//	printtofile(sccol,N,"sccol.txt");
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
@@ -297,26 +311,32 @@ void main()
 	}
 	
 	
-	/* NEED TO FIGURE OUT A WAY TO POPULATE cols SO AS TO HAVE varmat CREATED PROPERLY. SYSTEM CRASHES OTHERWISE
+	// NEED TO FIGURE OUT A WAY TO POPULATE cols SO AS TO HAVE varmat CREATED PROPERLY. SYSTEM CRASHES OTHERWISE
 	
-	
-	int cols[3]={4,3,3};
-	int** varmat=Changeto2DVariableIntArray(scval,N,N/2,2,cols);
-	
-	for (i=0;i<N;i++)
+	int c=2;
+	int* cols=Make1DIntArray(N/c);
+	j=0;
+	for(i=0;i<N;i=i+c)
 	{
-		for(j=0;j<2;j++)
+		cols[j]=rowwidth[i];
+		j++;
+	}
+	int** varmat=Changeto2DVariableIntArray(scval,N,N/c,c,cols);
+	for (i=0;i<N/c;i++)
+	{
+		for(j=0;j<c;j++)
 		{
 			printf("\n");
 			for (k=0;k<cols[i];k++)
 			{
-				printf("%d ",varmat[i*2+j][k]);
+				printf("%d ",varmat[i*c+j][k]);
 			}
 		}
 	}
-	printf("\n");
+}
+
 //printing val, col and row
-	/*
+/*	
 	printf("Val=");
 	for(i=0;i<Dsize;i++)
 	{
@@ -335,9 +355,9 @@ void main()
         {
                 printf("%d\t",row[i]);
         }
-        */
+        
         printf("\n");
-
+*/
 
         /*Now the actual multiplication kernel
         for (i=0;i<N;i++)
@@ -356,4 +376,4 @@ void main()
         
         
 
-}
+
