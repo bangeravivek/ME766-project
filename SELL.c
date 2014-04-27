@@ -3,7 +3,7 @@
 //#include<cuda.h>
 #include<unistd.h>
 #include<time.h>
-<<<<<<< HEAD
+
 /*
 __global__ void multiply(float* A, float* B, float* C, int K)
 {
@@ -14,14 +14,13 @@ __global__ void multiply(float* A, float* B, float* C, int K)
 	int index2=blockIdx.y*blockDim.y+threadIdx.y; 
 	float sum=0.0;
 	for (int i=0;i<K;i++)
-=======
 
 __global__ void multiply(float *vec, float *mat, float *out, const int N, const int M)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
         float sum=0;
 	if(tid<M)
->>>>>>> d26b32f66a796d65ce6b7491a85156c48dcb3f35
+
 	{
         	for(int i=0; i<N; i++)
         		sum += vec[i]*mat[(i*M)+tid];
@@ -185,7 +184,7 @@ void freese(int sizeX, int sizeY, double** ptr)
 
 void main()
 {
-	const int N=100;
+	int N=100;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -226,7 +225,6 @@ void main()
 			fscanf(arr,"%d",&a[i][j]);
 			printf("%d ",a[i][j]);
 		}
-		
 	}
 	printf("\n");
 	//row[i]=k;
@@ -265,8 +263,6 @@ void main()
 	}
 	
 	
-	
-	
 	for(i=0;i<N-1;i++)
 	{
 	for(j=0;j<N-1;j++)
@@ -299,9 +295,18 @@ void main()
 		}
 	}
 	}	
+	
+	for(i=0;i<N;i++)
+	{
+		if(scval[i][0]==0)
+		{
+			break;	
+		}	
+	}
+	N=i;
 		
 	printf("\nmaxrowwidth=%d\n",maxrowwidth);
-//	printmat(scval,N,N);
+	printmat(scval,N,N);
 //	printtofile(scval,N,"scval.txt");
 //	printtofile(sccol,N,"sccol.txt");
 	printf("\n Vector is:\n");
