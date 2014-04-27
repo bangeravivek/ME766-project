@@ -253,14 +253,11 @@ void main()
 			if(a[i][j]!=0)
 			{
 				scval[i][k]=a[i][j];
-				//printf("\n scval[%d][%d]=%d",i,k,scval[i][k]);
 
-				//sleep(1);
 				sccol[i][k]=j;
-				//printf("\n sccol[%d][%d]=%d",i,k,sccol[i][k]);
 				rowwidth[i]=k+1;
 				if(rowwidth[i]>maxrowwidth)
-				{	//printf("\nrow[%d] width=%d\n",i,maxrowwidth);
+				{
 					maxrowwidth=rowwidth[i];
 				}k++;
 			}
@@ -276,18 +273,7 @@ void main()
 	for(j=0;j<N-1;j++)
 	{
 		if(rowwidth[j]<rowwidth[j+1])
-		{	/*printf("\nrow %d width=%d",j,rowwidth[j]);
-			printf("\nscval[%d]=",j);
-			for(k=0;k<rowwidth[j];k++)
-			{
-				printf("%d ", scval[j][k]);
-			}
-			printf("\nscval[%d]=",j+1);
-			for(k=0;k<rowwidth[j+1];k++)
-			{
-				printf("%d ", scval[j+1][k]);
-			}
-			*/
+		{	
 			temp=scval[j];	
 			scval[j]=scval[j+1];
 			scval[j+1]=temp;
