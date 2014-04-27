@@ -209,7 +209,7 @@ void main()
 	int* temp=Make1DIntArray(N);
 	int *dev_a, *dev_b, *dev_c, *dev_d;
 	int sig=4,c=2;
-	
+	int* rowwidth=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
 	arr=fopen("matrix100.txt","r");
 	int k=0,cinrow=0;
@@ -287,9 +287,6 @@ if(sig>1&&c!=sig)
 				tint=rowwidth[j];
 				rowwidth[j]=rowwidth[j+1];
 				rowwidth[j+1]=tint;
-				tint=vecX[j];
-				vecX[j]=vecX[j+1];
-				vecX[j+1]=tint;
 			}
 		}
 		}	
