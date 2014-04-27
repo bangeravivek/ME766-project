@@ -2,15 +2,15 @@
 
 from random import randint
 
-f=open('matrix.txt','wt')
-g=open('vector.txt','wt')
+f=open('matrix100.txt','wt')
+g=open('vector100.txt','wt')
 count=0
 #X=randint(100,1000)
 #W=randint(100,1000)
-for i in range(0,1000):
-	for j in range(0,1000):
+for i in range(0,100):
+	for j in range(0,100):
 		Y=randint(0,100)
-		if Y>99 and count<10000:
+		if Y>95:
 			Z=str(randint(0,100))
 			f.write(Z+' ')
 			#f.write(' ')
@@ -19,7 +19,7 @@ for i in range(0,1000):
 			f.write('0 ');
 	f.write("\n")
 
-for i in range(0,1000):
+for i in range(0,100):
 	g.write(str(randint(0,100)))
 	g.write("\n")
 	

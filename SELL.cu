@@ -9,19 +9,21 @@ __global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *col
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
         int sum=0;
         int i;
+        int colidx=tid/2;
         printf("\n tid=%d", tid);
-   	for(i=0;i<cols[tid];i++)
+        printf("\ncols[%d]=%d",colidx,cols[colidx]);
+   	for(i=0;i<cols[colidx];i++)
 	{
 		sum += vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i];
-		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
+//		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
 		printf("\n%d*%d=%d",scval[rowptr[tid]+i],vec[sccol[rowptr[tid]+i]],vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i]);
-		printf("\nsccol[%d]=%d",rowptr[tid]+i, sccol[rowptr[tid]+i]);
+//		printf("\nsccol[%d]=%d",rowptr[tid]+i, sccol[rowptr[tid]+i]);
 		printf("\nvec[%d]=%d",sccol[rowptr[tid]+i], vec[sccol[rowptr[tid]+i]]);
-		printf("\nSum=%d", sum);
+//		printf("\nSum=%d", sum);
 		printf("\n");
 		
 	}
-     	__syncthreads();
+//     	__syncthreads();
    	result[tid]=sum;
 }
 
@@ -410,20 +412,25 @@ int main()
         cudaMalloc((void**)&dev_result, sizeof(int)*N);
         cudaMalloc((void**)&dev_sccol, sizeof(int)*varsize);	
         cudaMalloc((void**)&dev_cols, sizeof(int)*(N/c));
-        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N);
+        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N/c);
 		
 	cudaMemcpy(dev_vec, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_scval, scval_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_result, result, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_sccol, sccol_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_cols, rowwidth, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_cols, cols, sizeof(int)*(N/c), cudaMemcpyHostToDevice);
         cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
 	
+	printf("\nrowwidth:\n");
+	for (i=0;i<N;i++)
+		printf("%d ",cols[i]);
+	printf("\n");
 	printmatscreen<<<1,1>>>(dev_scval,varsize);
 	printmatscreen<<<1,1>>>(dev_sccol,varsize);
-	
+	printmatscreen<<<1,1>>>(dev_cols,(N/c));
+	//sleep(5);
 	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
-	
+	//__syncthreads();
 	cudaMemcpy(result, dev_result, sizeof(int)*N, cudaMemcpyDeviceToHost);
         for (i=0;i<N;i++)
         {

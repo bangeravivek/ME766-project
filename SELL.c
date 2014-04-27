@@ -4,21 +4,29 @@
 //#include<cuda.h>
 #include<unistd.h>
 #include<time.h>
-/*
-__global__ void multiply(int *vec, int *mat, int *out, const int N, const int M)
+
+
+__global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *cols, int *rowptr)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
         int sum=0;
-        
-	if(tid<M)
+        int i;
+        int colidx=tid/2;
+        printf("\n tid=%d", tid);
+        printf("\ncols[%d]=%d",colidx,cols[tid]);
+   	for(i=0;i<cols[colidx];i++)
 	{
-        	for(int i=0; i<N; i++)
-        	{	
-        		sum += vec[i]*mat[(tid*M)+i];
-        	}
-        	
-   	}
-   	out[tid]=sum;
+		sum += vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i];
+		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
+		printf("\n%d*%d=%d",scval[rowptr[tid]+i],vec[sccol[rowptr[tid]+i]],vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i]);
+		printf("\nsccol[%d]=%d",rowptr[tid]+i, sccol[rowptr[tid]+i]);
+		printf("\nvec[%d]=%d",sccol[rowptr[tid]+i], vec[sccol[rowptr[tid]+i]]);
+		printf("\nSum=%d", sum);
+		printf("\n");
+		
+	}
+     	__syncthreads();
+   	result[tid]=sum;
 }
 
 __global__ void printmatscreen(int* mat, int N)
@@ -26,16 +34,14 @@ __global__ void printmatscreen(int* mat, int N)
 	int i,j;
 	for (i=0;i<N;i++)
 	{	
-		printf("\n");
-		for (j=0;j<N;j++)
-		{
-			printf("%d ",mat[(i*N)+j]);
-		}
+		printf("%d ",mat[i]);
+		
 	}
 	printf("\n");
 }
 
-*/
+
+
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
 	int** theArray;
@@ -207,9 +213,11 @@ void main()
 	int** sccol=Make2DIntArray(N,N);	//sell c col
 	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
 	int* temp=Make1DIntArray(N);
-	int *dev_a, *dev_b, *dev_c, *dev_d;
+	
 	int sig=4,c=2;
 	int* rowwidth=Make1DIntArray(N);
+	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
+	
 	//int val[10],col[10],row[10];
 	arr=fopen("matrix100.txt","r");
 	int k=0,cinrow=0;
@@ -354,6 +362,83 @@ if(sig>1&&c!=sig)
 		}
 	}
 	int varsize=colsum*c;
+
+	//flattening scval and sccol
+	int counters=0;
+	int* scval_flat=Make1DIntArray(varsize);
+	int* sccol_flat=Make1DIntArray(varsize);
+	int* rowptr=Make1DIntArray(N+1);
+	rowptr[0]=0;	
+	int countcols=0;
+	int z=0;
+	for (i=0;i<N/c;i++)
+	{
+		for(j=0;j<c;j++)
+		{
+			printf("\n");
+			countcols=0;
+			for (k=0;k<cols[i];k++)
+			{
+				
+				scval_flat[counters]=varscval[i*c+j][k];
+				if (scval_flat[counters]!=0)
+				{
+					sccol_flat[counters]=varsccol[i*c+j][k];
+				}
+				counters=counters+1;
+				countcols=countcols+1;
+			}
+			rowptr[z+1]=rowptr[z]+countcols;
+			z=z+1;
+		}
+	}
+	printf("\n rowptrs:\n");
+	for(i=0;i<N;i++)
+		printf("%d ",rowptr[i]);
+	printf("\n");
+	
+	cudaMalloc((void**)&dev_vec, sizeof(int)*N);
+        cudaMalloc((void**)&dev_scval, sizeof(int)*varsize);
+        cudaMalloc((void**)&dev_result, sizeof(int)*N);
+        cudaMalloc((void**)&dev_sccol, sizeof(int)*varsize);	
+        cudaMalloc((void**)&dev_cols, sizeof(int)*(N/c));
+        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N/c);
+		
+	cudaMemcpy(dev_vec, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_scval, scval_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_result, result, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_sccol, sccol_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_cols, cols, sizeof(int)*(N/c), cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
+	
+	printf("\nrowwidth:\n");
+	for (i=0;i<N;i++)
+		printf("%d ",cols[i]);
+	printf("\n");
+	printmatscreen<<<1,1>>>(dev_scval,varsize);
+	printmatscreen<<<1,1>>>(dev_sccol,varsize);
+	printmatscreen<<<1,1>>>(dev_cols,(N/c));
+	sleep(5);
+	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
+	//__syncthreads();
+	cudaMemcpy(result, dev_result, sizeof(int)*N, cudaMemcpyDeviceToHost);
+        for (i=0;i<N;i++)
+        {
+        	printf("\n%d",result[i]);
+        }
+        
+        // CODE TO RESHUFFLE BACK
+
+	
+	cudaFree(dev_vec);
+        cudaFree(dev_scval);
+        cudaFree(dev_result);
+	cudaFree(dev_sccol);
+	cudaFree(dev_cols);
+	return 0;
+
+
+
 /*	
 	cudaMalloc((void**)&dev_vec, sizeof(int)*N);
         cudaMalloc((void**)&dev_scval_flat, sizeof(int)*varsize);
