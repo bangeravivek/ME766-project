@@ -4,20 +4,25 @@
 #include<unistd.h>
 #include<time.h>
 
-__global__ void multiply(int *vec, int *mat, int *out, const int N, const int M)
+__global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *cols, int *rowptr)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
         int sum=0;
-        
-	if(tid<M)
+        int i;
+        printf("\n tid=%d", tid);
+   	for(i=0;i<cols[tid];i++)
 	{
-        	for(int i=0; i<N; i++)
-        	{	
-        		sum += vec[i]*mat[(tid*M)+i];
-        	}
-        	
-   	}
-   	out[tid]=sum;
+		sum += vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i];
+		printf("\nrowptr[%d]=%d",tid, rowptr[tid]);
+		printf("\n%d*%d=%d",scval[rowptr[tid]+i],vec[sccol[rowptr[tid]+i]],vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i]);
+		printf("\nsccol[%d]=%d",rowptr[tid]+i, sccol[rowptr[tid]+i]);
+		printf("\nvec[%d]=%d",sccol[rowptr[tid]+i], vec[sccol[rowptr[tid]+i]]);
+		printf("\nSum=%d", sum);
+		printf("\n");
+		
+	}
+     	__syncthreads();
+   	result[tid]=sum;
 }
 
 __global__ void printmatscreen(int* mat, int N)
@@ -25,11 +30,8 @@ __global__ void printmatscreen(int* mat, int N)
 	int i,j;
 	for (i=0;i<N;i++)
 	{	
-		printf("\n");
-		for (j=0;j<N;j++)
-		{
-			printf("%d ",mat[(i*N)+j]);
-		}
+		printf("%d ",mat[i]);
+		
 	}
 	printf("\n");
 }
@@ -189,9 +191,9 @@ void freese(int sizeX, int sizeY, double** ptr)
     free(ptr);
 }
 
-void main()
+int main()
 {
-	int N=100;
+	int N=6;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -206,21 +208,26 @@ void main()
 	int** sccol=Make2DIntArray(N,N);	//sell c col
 	int* rowwidth=Make1DIntArray(N);	//number of elements in each row
 	int* temp=Make1DIntArray(N);
-	int *dev_a, *dev_b, *dev_c, *dev_d;
+	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix100.txt","r");
+	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
+//	struct timeval start, end;
+//	gettimeofday(&start, NULL);
 	
 	
 	//Reading the vector
 	
-	vec=fopen("vector100.txt","r");
+	vec=fopen("vec.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
+	}
+	printf("\n Vector is:\n");
+	for (i=0;i<N;i++)
+	{
+		printf("%d\n",vecX[i]);
 	}
 	
 	//Reading the matrix
@@ -238,12 +245,12 @@ void main()
 	//row[i]=k;
        	//printf("\n k = %d\n ", k);
        	//sleep(10);
-	gettimeofday(&end, NULL);
+	//gettimeofday(&end, NULL);
 
-	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
-	         end.tv_usec - start.tv_usec) / 1.e6;
+	//double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
+	 //        end.tv_usec - start.tv_usec) / 1.e6;
 
-	printf("\nTime spent=%f\n", delta);	
+//	printf("\nTime spent=%f\n", delta);	
 
 	
 	for(i=0;i<N;i++)
@@ -297,9 +304,7 @@ void main()
 			tint=rowwidth[j];
 			rowwidth[j]=rowwidth[j+1];
 			rowwidth[j+1]=tint;
-			tint=vecX[j];
-			vecX[j]=vecX[j+1];
-			vecX[j+1]=tint;
+			
 		}
 	}
 	}	
@@ -311,12 +316,14 @@ void main()
 			break;	
 		}	
 	}
-	N=i;
-		
+	if(i%2==1)
+		N=i+1;
+	else
+		N=i;	
 	printf("\nmaxrowwidth=%d\n",maxrowwidth);
 	printmat(scval,N,N);
-//	printtofile(scval,N,"scval.txt");
-//	printtofile(sccol,N,"sccol.txt");
+	printtofile(scval,N,"scval.txt");
+	printtofile(sccol,N,"sccol.txt");
 	printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
@@ -326,19 +333,12 @@ void main()
 
         
         //printmatscreen<<<1,1>>>(dev_b,N);
-	multiply<<<N,N>>>(dev_a, dev_b, dev_c, N, N);
 	
-	cudaMemcpy(result, dev_c, sizeof(int)*N, cudaMemcpyDeviceToHost);
+	
+	
 
-        for (i=0;i<N;i++)
-        {
-        	printf("\n%d",result[i]);
-        }
         
-        cudaFree(dev_a);
-        cudaFree(dev_b);
-        cudaFree(dev_c);
-	
+       
 	// NEED TO FIGURE OUT A WAY TO POPULATE cols SO AS TO HAVE varmat CREATED PROPERLY. SYSTEM CRASHES OTHERWISE
 	
 	int c=2;
@@ -348,12 +348,14 @@ void main()
 	for(i=0;i<N;i=i+c)
 	{
 		cols[j]=rowwidth[i];
+		printf("\n cols[%d]=%d",j,cols[j]);
 		colsum+=cols[j];
 		j++;
 	}
 	
 	int** varscval=Changeto2DVariableIntArray(scval,N,N/c,c,cols);
 	int** varsccol=Changeto2DVariableIntArray(sccol,N,N/c,c,cols);
+	
 	for (i=0;i<N/c;i++)
 	{
 		for(j=0;j<c;j++)
@@ -362,22 +364,77 @@ void main()
 			for (k=0;k<cols[i];k++)
 			{
 				printf("%d ",varscval[i*c+j][k]);
-				printf("%d ",varsccol[i*c+j][k]);
+				printf("%d \t",varsccol[i*c+j][k]);
 				
 			}
 		}
 	}
 	int varsize=colsum*c;
 	
+	//flattening scval and sccol
+	int counters=0;
+	int* scval_flat=Make1DIntArray(varsize);
+	int* sccol_flat=Make1DIntArray(varsize);
+	int* rowptr=Make1DIntArray(N+1);
+	rowptr[0]=0;	
+	int countcols=0;
+	int z=0;
+	for (i=0;i<N/c;i++)
+	{
+		for(j=0;j<c;j++)
+		{
+			printf("\n");
+			countcols=0;
+			for (k=0;k<cols[i];k++)
+			{
+				
+				scval_flat[counters]=varscval[i*c+j][k];
+				if (scval_flat[counters]!=0)
+				{
+					sccol_flat[counters]=varsccol[i*c+j][k];
+				}
+				counters=counters+1;
+				countcols=countcols+1;
+			}
+			rowptr[z+1]=rowptr[z]+countcols;
+			z=z+1;
+		}
+	}
+	printf("\n rowptrs:\n");
+	for(i=0;i<N;i++)
+		printf("%d ",rowptr[i]);
+	printf("\n");
+	
 	cudaMalloc((void**)&dev_vec, sizeof(int)*N);
-        cudaMalloc((void**)&dev_scval_flat, sizeof(int)*varsize);
+        cudaMalloc((void**)&dev_scval, sizeof(int)*varsize);
         cudaMalloc((void**)&dev_result, sizeof(int)*N);
-        cudaMalloc((void**)&dev_sccol_flat, sizeof(int)*varsize);	
+        cudaMalloc((void**)&dev_sccol, sizeof(int)*varsize);	
+        cudaMalloc((void**)&dev_cols, sizeof(int)*(N/c));
+        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N);
 		
-	cudaMemcpy(dev_a, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_b, varscval, sizeof(int)*varsize, cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_c, result, sizeof(int)*N, cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_d, varsccol, sizeof(int)*varsize, cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_vec, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_scval, scval_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_result, result, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_sccol, sccol_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_cols, rowwidth, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
+	
+	printmatscreen<<<1,1>>>(dev_scval,varsize);
+	printmatscreen<<<1,1>>>(dev_sccol,varsize);
+	
+	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
+	
+	cudaMemcpy(result, dev_result, sizeof(int)*N, cudaMemcpyDeviceToHost);
+        for (i=0;i<N;i++)
+        {
+        	printf("\n%d",result[i]);
+        }	
+	cudaFree(dev_vec);
+        cudaFree(dev_scval);
+        cudaFree(dev_result);
+	cudaFree(dev_sccol);
+	cudaFree(dev_cols);
+	return 0;
 	
 }
 
