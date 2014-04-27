@@ -137,7 +137,8 @@ void printtofile1D(int* matrix, int K, char* filename)
 	}
 }
 
-int* Make1DIntArray(int arraySizeX) {
+int* Make1DIntArray(int arraySizeX)
+{
 int* theArray;
 theArray = (int*)malloc(arraySizeX*sizeof(int));
 int i;
@@ -161,13 +162,13 @@ void main()
 {
 	const int N=100;
 	
-	const int Dsize=1000;
+//	const int Dsize=1000;
 	FILE *arr, *vec;
 	int i,j,maxrowwidth=0,tint=0;
 	int** a=Make2DIntArray(N,N);
-	int* val=Make1DIntArray(Dsize);
-	int* col=Make1DIntArray(Dsize);
-	int* row=Make1DIntArray(Dsize);
+//	int* val=Make1DIntArray(Dsize);
+//	int* col=Make1DIntArray(Dsize);
+//	int* row=Make1DIntArray(Dsize);
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
 	int** scval=Make2DIntArray(N,N);    //sell c value
@@ -247,7 +248,6 @@ void main()
 	{
 		if(rowwidth[j]<rowwidth[j+1])
 		{	printf("\nrow %d width=%d",j,rowwidth[j]);
-			temp=scval[j];
 			/*printf("\nscval[%d]=",j);
 			for(k=0;k<rowwidth[j];k++)
 			{
@@ -259,15 +259,18 @@ void main()
 				printf("%d ", scval[j+1][k]);
 			}
 			*/
+			temp=scval[j];	
 			scval[j]=scval[j+1];
-
 			scval[j+1]=temp;
 			temp=sccol[j];
 			sccol[j]=sccol[j+1];
 			sccol[j+1]=temp;
 			tint=rowwidth[j];
 			rowwidth[j]=rowwidth[j+1];
-			rowwidth[j+1]=tint;	
+			rowwidth[j+1]=tint;
+			tint=vecX[j];
+			vecX[j]=vecX[j+1];
+			vecX[j+1]=tint;
 		}
 	}
 	}	
