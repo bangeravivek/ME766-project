@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-//#include<cuda.h>
+#include<cuda.h>
 #include<unistd.h>
 #include<time.h>
 
@@ -178,6 +178,7 @@ void main()
 	FILE *arr, *vec;
 	int i,j,maxrowwidth=0,tint=0;
 	int** a=Make2DIntArray(N,N);
+	int* aflat=Make1DIntArray(N*N);
 //	int* val=Make1DIntArray(Dsize);
 //	int* col=Make1DIntArray(Dsize);
 //	int* row=Make1DIntArray(Dsize);
@@ -189,7 +190,13 @@ void main()
 	int* temp=Make1DIntArray(N);
 	int* cols=Make1DIntArray(N/2);
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix100.txt","r");
+	int *dev_a, *dev_b, *dev_c;
+	cudaMalloc((void**)&dev_a, sizeof(int)*N);
+        cudaMalloc((void**)&dev_b, sizeof(int)*N*N);
+        cudaMalloc((void**)&dev_c, sizeof(int)*N);
+
+        
+	arr=fopen("mat.txt","r");
 	int k=0,cinrow=0;
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
@@ -197,7 +204,7 @@ void main()
 	
 	//Reading the vector
 	
-	vec=fopen("vector100.txt","r");
+	vec=fopen("vec.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
@@ -226,7 +233,32 @@ void main()
 
 	printf("\nTime spent=%f\n", delta);	
 
+	int counter=0;
+	for (i=0;i<N;i++)
+	{
+		for(j=0;j<N;j++)
+		{
+			aflat[counter]=a[i][j];
+		}
+	}
+
+	cudaMemcpy(dev_a, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_b, aflat, sizeof(int)*N*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_c, result, sizeof(int)*N, cudaMemcpyHostToDevice);
+        
+	kernel<<<N, N>>>(dev_a, dev_b, dev_c, N, N);
 	
+	cudaMemcpy(result, dev_c, sizeof(int)*M, cudaMemcpyDeviceToHost);
+
+        for (i=0;i<N;i++)
+        {
+        	printf("\n%d",result[i]);
+        }
+        
+        cudaFree(dev_a);
+        cudaFree(dev_b);
+        cudaFree(dev_c);
+	/*
 	for(i=0;i<N;i++)
 	{
 		for(j=0;j<N;j++)
@@ -270,7 +302,7 @@ void main()
 			{
 				printf("%d ", scval[j+1][k]);
 			}
-			*/
+			
 			temp=scval[j];	
 			scval[j]=scval[j+1];
 			scval[j+1]=temp;
@@ -295,7 +327,7 @@ void main()
 	{
 		printf("%d\n",vecX[i]);
 	}
-	
+	*/
 	
 	/* NEED TO FIGURE OUT A WAY TO POPULATE cols SO AS TO HAVE varmat CREATED PROPERLY. SYSTEM CRASHES OTHERWISE
 	
