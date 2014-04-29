@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<unistd.h>
 #include<time.h>
+#include<cuda.h>
 
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
@@ -91,8 +92,8 @@ void printtofile1D(int* matrix, int K, char* filename)
 void main()
 {
 
-	const int N=1000;
-	const int Dsize=10000;
+	const int N=100;
+	const int Dsize=1000;
 	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
@@ -140,7 +141,7 @@ void main()
 
 	
 	
-	printf("\n Vector is:\n");
+	/*printf("\n Vector is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",vecX[i]);
@@ -159,20 +160,29 @@ void main()
         {
                 printf("%d\t",col[i]);
         }
-        */printf("\n");
+        printf("\n");
 	printf("row=");
 	for(i=0;i<k;i++)
         {
                 printf("%d\t",row[i]);
         }
-        
+        */
         printf("\n");
 
 
         /*Now the actual multiplication kernel*/
         
-	struct timeval start, end;
+	/*struct timeval start, end;
 	gettimeofday(&start, NULL);        
+	*/
+	
+	cudaEvent_t start_kernel, stop_kernel;
+	float time_kernel;
+	cudaEventCreate(&start_kernel);
+	cudaEventCreate(&stop_kernel);
+	
+	cudaEventRecord(start_kernel,0);
+	
        	for (i=0;i<N;i++)
         {
         	for (j=row[i];j<row[i+1];j++)
@@ -181,12 +191,21 @@ void main()
         	}
        	}
 
-	gettimeofday(&end, NULL);
+	cudaEventRecord(stop_kernel,0);
+
+
+/*	gettimeofday(&end, NULL);
 
 	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
 	         end.tv_usec - start.tv_usec) / 1.e6;
 
 	printf("\nTime spent=%f\n", delta);	
+*/
+	cudaEventSynchronize(stop);
+
+	cudaEventElapsedTime(&time_kernel, start_kernel, stop_kernel);
+	
+	printf("\nTime for kernel without data transfer = %f ms \n", time_kernel); 
 	
 	printtofile1D(result,N,"results.txt");
 /*
