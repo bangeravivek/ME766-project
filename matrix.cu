@@ -118,7 +118,7 @@ void printtofile1D(int* matrix, int K, char* filename)
 int main()
 {
 
-	const int N=5000;
+	const int N=10000;
 
 	FILE *arr, *vec;
 	int i,j;
@@ -133,7 +133,7 @@ int main()
 //	int* rowwidth=Make1DIntArray(N);
 //	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
-	arr=fopen("matrix500.txt","r");
+	arr=fopen("matrix10000.txt","r");
 	int k=0,cinrow=0;
 
 	//row[0]=0;
@@ -156,11 +156,11 @@ int main()
 	int Dsize=k;
 	int* val=Make1DIntArray(Dsize);
 	int* col=Make1DIntArray(Dsize);
-	int* row=Make1DIntArray(Dsize);
+	int* row=Make1DIntArray(N+1);
        	printf("\n k = %d\n ", k);
        	//sleep(10);
        	
-
+k=0;
 	row[0]=0;
 	for(i=0;i<N;i++)
 	{
@@ -171,7 +171,8 @@ int main()
 				val[k]=a[i][j];
 				col[k]=j;
 				cinrow++;
-//				k++;
+				k++;
+				
 			}	
 			
 		}
@@ -179,13 +180,16 @@ int main()
 		cinrow=0;
 		
 	}
-	
+//	sleep(5);
 	row[i]=k;
 
-	vec=fopen("vector500.txt","r");
+	vec=fopen("vector10000.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
+	
+	
+			
 		
 	}
 	
@@ -237,8 +241,9 @@ int main()
        	for (i=0;i<N;i++)
         {
         	for (j=row[i];j<row[i+1];j++)
-        	{
+        	{ 	
         		result[i]+=val[j]*vecX[col[j]];
+        		
         	}
        	}
 
@@ -263,8 +268,8 @@ int main()
 	printf("\nTime for kernel without data transfer = %f ms \n", time_kernel); 
 	
 	printtofile1D(result,N,"results.txt");
-/*
-	printf("\n Result is:\n");
+
+/*	printf("\n Result is:\n");
 	for (i=0;i<N;i++)
 	{
 		printf("%d\n",result[i]);

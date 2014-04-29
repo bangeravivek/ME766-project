@@ -203,7 +203,7 @@ void freese(int sizeX, int sizeY, double** ptr)
 
 int main()
 {
-	int N=500;
+	int N=5000;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -221,12 +221,12 @@ int main()
 	int* rows=Make1DIntArray(N);
 	int* resultsordered=Make1DIntArray(N);
 	
-	int sig=4,c=2;
+	int sig=200,c=100;
 //	int* rowwidth=Make1DIntArray(N);
 	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_cs;
 	
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix500.txt","r");
+	arr=fopen("matrix5000.txt","r");
 	int k=0;
 //	struct timeval start, end;
 //	gettimeofday(&start, NULL);
@@ -234,7 +234,7 @@ int main()
 	
 	//Reading the vector
 	
-	vec=fopen("vector500.txt","r");
+	vec=fopen("vector5000.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
@@ -245,7 +245,7 @@ int main()
 	
 	for(i=0;i<N;i++)
 	{	
-		printf("\n");
+		//printf("\n");
 		for(j=0;j<N;j++)
 		{
 			fscanf(arr,"%d",&a[i][j]);
@@ -365,7 +365,7 @@ if(sig>1&&c!=sig)
 	
 	int** varscval=Changeto2DVariableIntArray(scval,N,N/c,c,cols);
 	int** varsccol=Changeto2DVariableIntArray(sccol,N,N/c,c,cols);
-	for (i=0;i<N/c;i++)
+/*	for (i=0;i<N/c;i++)
 	{
 		for(j=0;j<c;j++)
 		{
@@ -378,7 +378,7 @@ if(sig>1&&c!=sig)
 			}
 		}
 	}
-
+*/
 	int varsize=colsum*c;
 
 	//flattening scval and sccol
@@ -404,8 +404,8 @@ if(sig>1&&c!=sig)
 			{
 				scval_flat[counters]=varscval[i*c+k][j];
 				sccol_flat[counters]=varsccol[i*c+k][j];
-				printf("%d ",scval_flat[counters]);
-				printf("%d\n", sccol_flat[counters]);
+				//printf("%d ",scval_flat[counters]);
+				//printf("%d\n", sccol_flat[counters]);
 				counters=counters+1;
 				countcols=countcols+1;
 			}
@@ -415,7 +415,7 @@ if(sig>1&&c!=sig)
 		z=z+1;
 	}
 	
-	printf("\ncs:");
+/*	printf("\ncs:");
 	for(i=1;i<(N/c)+1;i++)
 		printf("%d ", cs[i]);
 		
@@ -432,7 +432,7 @@ if(sig>1&&c!=sig)
 	printtofile1D(result,N,"resultstest.txt");
 */
 	cudaEvent_t start, stop, start_kernel, stop_kernel;
-	float time, time_kernel;
+	float time_kernel;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 	cudaEventCreate(&start_kernel);
