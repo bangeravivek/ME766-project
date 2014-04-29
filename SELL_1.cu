@@ -5,22 +5,36 @@
 #include<unistd.h>
 #include<time.h>
 
+/*
+	for(i=0;i<N/c;i++)
+	{
+		for(j=0;j<cols[i];j++)
+		{
+			result[i*c+0]+=scval_flat[cs[i]+(j*c)]*vecX[sccol_flat[cs[i]+(j*2)]];
+			result[i*c+1]+=scval_flat[cs[i]+(j*c)+1]*vecX[sccol_flat[cs[i]+(j*2)+1]];
+		}
+	}
+*/
 
-__global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *cols, int *rowptr)
+
+__global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *cols, int *cs)
 {
-	int tid=threadIdx.x+blockIdx.x*blockDim.x;
-        int sum=0;
-        int i;
-        int colidx=tid/2;
-
-   	for(i=0;i<cols[colidx];i++)
+	int tid=blockIdx.x;
+        int sum1=0;
+        int j;
+        //int colidx=tid/2;
+	//printf("\n tid= %d", tid);
+	//printf("\n Writing to %d",tid*c+threadIdx.x);
+   	for(j=0;j<cols[tid];j++)
 	{	
-
-		sum += vec[sccol[rowptr[tid]+i]]*scval[rowptr[tid]+i];
-
+			
+		sum1 += scval[cs[tid]+(j*2)+threadIdx.x]*vec[sccol[cs[tid]+(j*2)+threadIdx.x]];
+//		sum2 += scval[cs[tid]+(j*2)+1]*vec[sccol[cs[tid]+(j*2)+1]];
+		
 	}
      	__syncthreads();
-   	result[tid]=sum;
+   	result[tid*blockDim.x+threadIdx.x]=sum1;
+//   	result[tid*c+1]=sum2;
 }
 
 __global__ void printmatscreen(int* mat, int N)
@@ -189,7 +203,7 @@ void freese(int sizeX, int sizeY, double** ptr)
 
 int main()
 {
-	int N=8;
+	int N=500;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -207,12 +221,12 @@ int main()
 	int* rows=Make1DIntArray(N);
 	int* resultsordered=Make1DIntArray(N);
 	
-	int sig=1,c=2;
+	int sig=4,c=2;
 //	int* rowwidth=Make1DIntArray(N);
-	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
+	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_cs;
 	
 	//int val[10],col[10],row[10];
-	arr=fopen("mat.txt","r");
+	arr=fopen("matrix500.txt","r");
 	int k=0;
 //	struct timeval start, end;
 //	gettimeofday(&start, NULL);
@@ -220,7 +234,7 @@ int main()
 	
 	//Reading the vector
 	
-	vec=fopen("vec.txt","r");
+	vec=fopen("vector500.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
@@ -405,7 +419,7 @@ if(sig>1&&c!=sig)
 	for(i=1;i<(N/c)+1;i++)
 		printf("%d ", cs[i]);
 		
-
+/*
 	for(i=0;i<N/c;i++)
 	{
 		for(j=0;j<cols[i];j++)
@@ -416,7 +430,7 @@ if(sig>1&&c!=sig)
 	}
 	
 	printtofile1D(result,N,"resultstest.txt");
-
+*/
 	cudaEvent_t start, stop, start_kernel, stop_kernel;
 	float time, time_kernel;
 	cudaEventCreate(&start);
@@ -429,32 +443,31 @@ if(sig>1&&c!=sig)
         cudaMalloc((void**)&dev_result, sizeof(int)*N);
         cudaMalloc((void**)&dev_sccol, sizeof(int)*varsize);	
         cudaMalloc((void**)&dev_cols, sizeof(int)*(N/c));
-        cudaMalloc((void**)&dev_rowptr, sizeof(int)*N);
+        cudaMalloc((void**)&dev_cs, sizeof(int)*(N/c));
 	
-	cudaEventRecord(start,0);
+	//cudaEventRecord(start,0);
 		
 	cudaMemcpy(dev_vec, vecX, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_scval, scval_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_result, result, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_sccol, sccol_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_cols, cols, sizeof(int)*(N/c), cudaMemcpyHostToDevice);
-//        cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
+        cudaMemcpy(dev_cs, cs, sizeof(int)*(N/c), cudaMemcpyHostToDevice);
 	
 	cudaEventRecord(start_kernel,0);	
 
-//	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
-
-	cudaEventRecord(stop_kernel,0);
+	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_cs);
+	//sleep(10);
+	cudaEventRecord(stop_kernel,0);	
 
 	cudaMemcpy(result, dev_result, sizeof(int)*N, cudaMemcpyDeviceToHost);
 	
-	cudaEventRecord(stop,0);
-	cudaEventSynchronize(stop);
+	//cudaEventRecord(stop,0);
+	cudaEventSynchronize(stop_kernel);
 
-	cudaEventElapsedTime(&time, start, stop);
+	//cudaEventElapsedTime(&time, start, stop);
 	cudaEventElapsedTime(&time_kernel, start_kernel, stop_kernel);
-	
-	printf("\nTime for kernel with data transfer = %f ms \n", time);
+	//printf("\nTime for kernel with data transfer = %f ms \n", time);
 	printf("\nTime for kernel without data transfer = %f ms \n", time_kernel); 
 	
         for (i=0;i<N;i++)

@@ -3,7 +3,7 @@
 #include<unistd.h>
 #include<time.h>
 #include<cuda.h>
-
+/*
 __global__ void multiply(int *val, int *vec, int *result, int *cols, int *rowptr)
 {
 	int tid=threadIdx.x+blockIdx.x*blockDim.x;
@@ -29,7 +29,7 @@ __global__ void printmatscreen(int* mat, int N)
 	}
 	printf("\n");
 }
-
+*/
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
 	int** theArray;
@@ -118,27 +118,25 @@ void printtofile1D(int* matrix, int K, char* filename)
 int main()
 {
 
-	const int N=100;
-	const int Dsize=1000;
+	const int N=5000;
+
 	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
-	int* val=Make1DIntArray(Dsize);
-	int* col=Make1DIntArray(Dsize);
-	int* row=Make1DIntArray(Dsize);
+	
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
 	int* resultsordered=Make1DIntArray(N);
 	
-	int sig=4,c=2;
+//	int sig=4,c=2;
 //	int* rowwidth=Make1DIntArray(N);
-	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
+//	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
-	arr=fopen("matrix100.txt","r");
+	arr=fopen("matrix500.txt","r");
 	int k=0,cinrow=0;
 
-	row[0]=0;
+	//row[0]=0;
 	for(i=0;i<N;i++)
 	{
 		for(j=0;j<N;j++)
@@ -146,10 +144,34 @@ int main()
 			fscanf(arr,"%d",&a[i][j]);
 			if(a[i][j])
 			{
+				k++;
+			}	
+			
+		}
+		cinrow=0;
+		
+	}
+
+	
+	int Dsize=k;
+	int* val=Make1DIntArray(Dsize);
+	int* col=Make1DIntArray(Dsize);
+	int* row=Make1DIntArray(Dsize);
+       	printf("\n k = %d\n ", k);
+       	//sleep(10);
+       	
+
+	row[0]=0;
+	for(i=0;i<N;i++)
+	{
+		for(j=0;j<N;j++)
+		{
+			if(a[i][j])
+			{
 				val[k]=a[i][j];
 				col[k]=j;
 				cinrow++;
-				k++;
+//				k++;
 			}	
 			
 		}
@@ -157,13 +179,10 @@ int main()
 		cinrow=0;
 		
 	}
-
+	
 	row[i]=k;
-       	printf("\n k = %d\n ", k);
-       	//sleep(10);
 
-
-	vec=fopen("vector100.txt","r");
+	vec=fopen("vector500.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
@@ -234,10 +253,10 @@ int main()
 	         end.tv_usec - start.tv_usec) / 1.e6;
 
 	printf("\nTime spent=%f\n", delta);	
-*/
-	cudaEventSynchronize(stop_kernel);
 
-	multiply<<<N,1>>>(val, vecX, result, col, row);
+*/	cudaEventSynchronize(stop_kernel);
+
+//	multiply<<<N,1>>>(val, vecX, result, col, row);
 
 	cudaEventElapsedTime(&time_kernel, start_kernel, stop_kernel);
 	
