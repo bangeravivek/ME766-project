@@ -189,7 +189,7 @@ void freese(int sizeX, int sizeY, double** ptr)
 
 int main()
 {
-	int N=1000;
+	int N=8;
 	
 //	const int Dsize=1000;
 	FILE *arr, *vec;
@@ -212,7 +212,7 @@ int main()
 	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
 	//int val[10],col[10],row[10];
-	arr=fopen("matrix100.txt","r");
+	arr=fopen("mat.txt","r");
 	int k=0;
 //	struct timeval start, end;
 //	gettimeofday(&start, NULL);
@@ -220,7 +220,7 @@ int main()
 	
 	//Reading the vector
 	
-	vec=fopen("vector100.txt","r");
+	vec=fopen("vec.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);
@@ -377,15 +377,14 @@ if(sig>1&&c!=sig)
 	int z=0;
 	for (i=0;i<N/c;i++)
 	{
-		for(j=0;j<c;j++)
+		for(j=0;j<cols[i];j++)
 		{
 			
 			countcols=0;
-			for (k=0;k<cols[i];k++)
+			for (k=0;k<c;k++)
 			{
-				
-				scval_flat[counters]=varscval[i*c+j][k];
-				sccol_flat[counters]=varsccol[i*c+j][k];
+				scval_flat[counters]=varscval[k][i*c+j];
+				sccol_flat[counters]=varsccol[k][i*c+j];
 				counters=counters+1;
 				countcols=countcols+1;
 			}
