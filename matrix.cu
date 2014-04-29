@@ -4,6 +4,32 @@
 #include<time.h>
 #include<cuda.h>
 
+__global__ void multiply(int *val, int *vec, int *result, int *cols, int *rowptr)
+{
+	int tid=threadIdx.x+blockIdx.x*blockDim.x;
+        int sum=0;
+        int i;
+        for(i=0;i<cols[colidx];i++)
+	{	
+
+		sum += vec[rowptr[tid]+i]*val[rowptr[tid]+i];
+
+	}
+     	__syncthreads();
+   	result[tid]=sum;
+}
+
+__global__ void printmatscreen(int* mat, int N)
+{
+	int i;
+	for (i=0;i<N;i++)
+	{	
+		printf("%d ",mat[i]);
+		
+	}
+	printf("\n");
+}
+
 int** Make2DIntArray(int arraySizeX, int arraySizeY)
 {
 	int** theArray;
@@ -89,15 +115,11 @@ void printtofile1D(int* matrix, int K, char* filename)
 	
 }
 
-void main()
+int main()
 {
 
 	const int N=100;
-<<<<<<< HEAD
-	const int Dsize=10000;
-=======
 	const int Dsize=1000;
->>>>>>> 058091936f15ae4bcf900d8b31850e8338dd325c
 	FILE *arr, *vec;
 	int i,j;
 	int** a=Make2DIntArray(N,N);
@@ -107,6 +129,12 @@ void main()
 	int* result=Make1DIntArray(N);
 	int* vecX=Make1DIntArray(N);
 	//int val[10],col[10],row[10];
+	int* resultsordered=Make1DIntArray(N);
+	
+	int sig=4,c=2;
+//	int* rowwidth=Make1DIntArray(N);
+	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
+	
 	arr=fopen("matrix100.txt","r");
 	int k=0,cinrow=0;
 
@@ -198,6 +226,8 @@ void main()
 	cudaEventRecord(stop_kernel,0);
 
 
+
+
 /*	gettimeofday(&end, NULL);
 
 	double delta = ((end.tv_sec  - start.tv_sec) * 1000000u + 
@@ -205,7 +235,9 @@ void main()
 
 	printf("\nTime spent=%f\n", delta);	
 */
-	cudaEventSynchronize(stop);
+	cudaEventSynchronize(stop_kernel);
+
+	multiply<<<N,1>>>(val, vecX, result, col, row);
 
 	cudaEventElapsedTime(&time_kernel, start_kernel, stop_kernel);
 	
@@ -219,6 +251,7 @@ void main()
 		printf("%d\n",result[i]);
 	}      
 */
+	return 0;
 
 }
 
