@@ -207,7 +207,7 @@ int main()
 	int* rows=Make1DIntArray(N);
 	int* resultsordered=Make1DIntArray(N);
 	
-	int sig=4,c=2;
+	int sig=1,c=2;
 //	int* rowwidth=Make1DIntArray(N);
 	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
@@ -371,30 +371,51 @@ if(sig>1&&c!=sig)
 	int counters=0;
 	int* scval_flat=Make1DIntArray(varsize);
 	int* sccol_flat=Make1DIntArray(varsize);
-	int* rowptr=Make1DIntArray(N+1);
-	rowptr[0]=0;	
+	int* cs=Make1DIntArray((N/c)+1);
+	cs[0]=0;	
 	int countcols=0;
 	int z=0;
+	printf("\n");
+	printf("\n");
+	printf("\n");
 	for (i=0;i<N/c;i++)
 	{
+		countcols=0;
 		for(j=0;j<cols[i];j++)
 		{
 			
-			countcols=0;
+			
+			
 			for (k=0;k<c;k++)
 			{
-				scval_flat[counters]=varscval[k][i*c+j];
-				sccol_flat[counters]=varsccol[k][i*c+j];
+				scval_flat[counters]=varscval[i*c+k][j];
+				sccol_flat[counters]=varsccol[i*c+k][j];
+				printf("%d ",scval_flat[counters]);
+				printf("%d\n", sccol_flat[counters]);
 				counters=counters+1;
 				countcols=countcols+1;
 			}
-			rowptr[z+1]=rowptr[z]+countcols;
-			z=z+1;
+			
+		}
+		cs[z+1]=cs[z]+countcols;
+		z=z+1;
+	}
+	
+	printf("\ncs:");
+	for(i=1;i<(N/c)+1;i++)
+		printf("%d ", cs[i]);
+		
+
+	for(i=0;i<N/c;i++)
+	{
+		for(j=0;j<cols[i];j++)
+		{
+			result[i*c+0]+=scval_flat[cs[i]+(j*c)]*vecX[sccol_flat[cs[i]+(j*2)]];
+			result[i*c+1]+=scval_flat[cs[i]+(j*c)+1]*vecX[sccol_flat[cs[i]+(j*2)+1]];
 		}
 	}
 	
-	printtofile(scval,N,"scval.txt");
-	printtofile(sccol,N,"sccol.txt");
+	printtofile1D(result,N,"resultstest.txt");
 
 	cudaEvent_t start, stop, start_kernel, stop_kernel;
 	float time, time_kernel;
@@ -417,11 +438,11 @@ if(sig>1&&c!=sig)
         cudaMemcpy(dev_result, result, sizeof(int)*N, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_sccol, sccol_flat, sizeof(int)*varsize, cudaMemcpyHostToDevice);
         cudaMemcpy(dev_cols, cols, sizeof(int)*(N/c), cudaMemcpyHostToDevice);
-        cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
+//        cudaMemcpy(dev_rowptr, rowptr, sizeof(int)*N, cudaMemcpyHostToDevice);
 	
 	cudaEventRecord(start_kernel,0);	
 
-	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
+//	multiply<<<N/c,c>>>(dev_scval, dev_sccol, dev_vec, dev_result, dev_cols, dev_rowptr);
 
 	cudaEventRecord(stop_kernel,0);
 
