@@ -118,7 +118,7 @@ void printtofile1D(int* matrix, int K, char* filename)
 int main()
 {
 
-	const int N=10000;
+	const int N=1000;
 
 	FILE *arr, *vec;
 	int i,j;
@@ -133,7 +133,7 @@ int main()
 //	int* rowwidth=Make1DIntArray(N);
 //	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_rowptr;
 	
-	arr=fopen("matrix10000.txt","r");
+	arr=fopen("matrix1000.txt","r");
 	int k=0,cinrow=0;
 
 	//row[0]=0;
@@ -183,7 +183,7 @@ k=0;
 //	sleep(5);
 	row[i]=k;
 
-	vec=fopen("vector10000.txt","r");
+	vec=fopen("vector1000.txt","r");
 	for (i=0;i<N;i++)
 	{
 		fscanf(vec,"%d",&vecX[i]);

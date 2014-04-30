@@ -28,7 +28,7 @@ __global__ void multiply(int *scval, int *sccol, int *vec, int *result, int *col
    	for(j=0;j<cols[tid];j++)
 	{	
 			
-		sum1 += scval[cs[tid]+(j*2)+threadIdx.x]*vec[sccol[cs[tid]+(j*2)+threadIdx.x]];
+		sum1 += scval[cs[tid]+(j*blockDim.x)+threadIdx.x]*vec[sccol[cs[tid]+(j*blockDim.x)+threadIdx.x]];
 //		sum2 += scval[cs[tid]+(j*2)+1]*vec[sccol[cs[tid]+(j*2)+1]];
 		
 	}
@@ -221,7 +221,7 @@ int main()
 	int* rows=Make1DIntArray(N);
 	int* resultsordered=Make1DIntArray(N);
 	
-	int sig=200,c=100;
+	int sig=4,c=2;
 //	int* rowwidth=Make1DIntArray(N);
 	int *dev_vec, *dev_scval, *dev_result, *dev_sccol, *dev_cols, *dev_cs;
 	
